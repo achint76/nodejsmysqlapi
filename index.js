@@ -92,8 +92,29 @@ const con = require("./config");
 const app = express();
 app.use(express.json())
 
+const itemsPerPage = 5;
+
+// app.get("/getuser", (req, res) => {
+//     con.query("SELECT * FROM users", (err, result) => {
+//         if (err) {
+//             res.status(500).send("Error fetching users");
+//         } else {
+//             res.send(result);
+//         }
+//     });
+// });
+
 app.get("/getuser", (req, res) => {
-    con.query("SELECT * FROM users", (err, result) => {
+    // Get the current page number from query parameters, default to page 1
+    const page = parseInt(req.query.page) || 1;
+
+    // Calculate the offset based on the current page and items per page
+    const offset = (page - 1) * itemsPerPage;
+
+    // Query to fetch a paginated list of users
+    const query = "SELECT * FROM users LIMIT ? OFFSET ?";
+
+    con.query(query, [itemsPerPage, offset], (err, result) => {
         if (err) {
             res.status(500).send("Error fetching users");
         } else {
